@@ -74,14 +74,13 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--path_to_csv', type=str,
                     default='./test_ios.csv', help='path to the raw logs from Chronicle dashboard')
 parser.add_argument('--path_to_save', type=str,
-                    default='./check_.csv', help='the processed log is stored here')
+                    default=None, help='the processed log is stored here')
 parser.add_argument('--date', type=str,
                     default=None, help='please input date in YYYY-MM-DD format')
 
 args = parser.parse_args()
                     
 fname = args.path_to_csv
-save_name = args.path_to_save
 save_date = args.date
 
 df = pd.read_csv(fname)
@@ -90,7 +89,13 @@ df = df[~pd.isna(df['app_usage_time'])]
 unique_datetimestamp = df['recordeddate'].unique()
 ppt_id = df.iloc[1]['participant_id']
 
-print('Participant ID: ', df.iloc[1]['participant_id'])
+if args.path_to_save is None:
+    save_name = str(ppt_id) + '_chronicle_ios.csv'
+else:
+    save_name = args.path_to_save
+
+
+print('Participant ID: ', ppt_id)
 
 # user, appshortname, start, stop, appdetailedname
 data = {'sample_id': [],
@@ -145,13 +150,20 @@ for u_dts in unique_datetimestamp:
     
 
 new_df = pd.DataFrame(data)
+new_df['participant_id'] = pd.NaT
+new_df['participant_id'] = ppt_id
+
+cols = ['sample_id','participant_id','recordeddate','date','start_time','stop_time','user','app_category','app_namedetail']
+
+new_df = new_df[cols]
 new_df = new_df.sort_values(by = 'recordeddate')
-new_df.to_csv(save_name, index=False)
-print('results saved at: ', save_name)
 
 if save_date is not None:
     new_df = new_df[new_df['date']==save_date]
     file_name = './' + str(ppt_id) + '_' + save_date + '.csv'
     new_df.to_csv(file_name, index=False)
     print('results saved at: ', file_name)
+else:
+    new_df.to_csv(save_name, index=False)
+    print('results saved at: ', save_name)
 
