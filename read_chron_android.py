@@ -65,10 +65,10 @@ df['date'] = pd.to_datetime(df['start_timestamp'])
 df['date'] = df['date'].dt.date
 
 df['start_timestamp'] = pd.to_datetime(df['start_timestamp'])
-df['start_timestamp'] = df['start_timestamp'].dt.time
+df['start_timestamp'] = df['start_timestamp'].dt.strftime('%H:%M:%S')
 
 df['stop_timestamp'] = pd.to_datetime(df['stop_timestamp'])
-df['stop_timestamp'] = df['stop_timestamp'].dt.time
+df['stop_timestamp'] = df['stop_timestamp'].dt.strftime('%H:%M:%S')
 
 # Reset the index of the DataFrame
 df.reset_index(drop=True, inplace=True)
